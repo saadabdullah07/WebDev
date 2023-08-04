@@ -54,7 +54,6 @@ body {
     text-align: center;
   }
   
-  /* Add bold borders for the 3x3 boxes */
 tbody > tr:nth-child(3n) td,
 tbody > tr:nth-child(3n) td,
 tbody > tr:nth-child(3n) td {
