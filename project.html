@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>9x9 Sudoku Solver</title>
+    <link rel="stylesheet" href="sud.css">
+</head>
+<body>
+    <h1 class="animate">9x9 Sudoku Solver</h1>
+    <table>
+        <tbody id="sudoku-grid">
+        </tbody>
+    </table>
+<br/>
+<center class="instruct" >To Solve the incomplete Sudoku press the button below :</center>
+<br/>
+<button class="button-pushable" role="button" onclick="solveSudoku()">
+    <span class="button-shadow"></span>
+    <span class="button-edge"></span>
+    <span class="button-front text">
+        Solve
+    </span>
+  </button>
+
+    <script>
+        const initialGrid = [
+[0, 0, 0, 0, 0, 0, 0, 0, 0],
+[0, 0, 0, 0, 0, 0, 0, 0, 0],
+[0, 0, 0, 0, 0, 0, 0, 0, 0],
+[0, 0, 0, 0, 0, 0, 0, 0, 0],
+[0, 0, 0, 0, 0, 0, 0, 0, 0],
+[0, 0, 0, 0, 0, 0, 0, 0, 0],
+[0, 0, 0, 0, 0, 0, 0, 0, 0],
+[0, 0, 0, 0, 0, 0, 0, 0, 0],
+[0, 0, 0, 0, 0, 0, 0, 0, 0]
+        ];
+
+        function createGrid() {
+const table = document.getElementById('sudoku-grid');
+for (let i = 0; i < 9; i++) {
+    const row = document.createElement('tr');
+    for (let j = 0; j < 9; j++) {
+        const cell = document.createElement('td');
+        const input = document.createElement('input');
+        input.type = 'text';
+        input.maxLength = 1;
+        input.classList.add('sudoku-cell');
+        input.addEventListener('input', () => updateCell(i, j, input.value));
+        cell.appendChild(input);
+        row.appendChild(cell);
+    }
+    table.appendChild(row);
+}
+        }
+
+        function updateCell(row, col, value) {
+const cell = document.querySelectorAll('tr')[row].querySelectorAll('td')[col];
+if (!isNaN(value) && value >= 1 && value <= 9) {
+    cell.classList.remove('error');
+    initialGrid[row][col] = parseInt(value);
+} else {
+    cell.classList.add('error');
+    initialGrid[row][col] = 0;
+}
+        }
+
+        function isValidPlace(row, col, num){
+return !isPresentInRow(row, num) && !isPresentInCol(col, num) && !isPresentInBox(row - row % 3, col - col % 3, num);
+        }
+
+        function isPresentInRow(row, num) {
+for (let col = 0; col < 9; col++)
+    if (initialGrid[row][col] === num)
+        return true;
+return false;
+        }
+
+        function isPresentInCol(col, num) {
+for (let row = 0; row < 9; row++)
+    if (initialGrid[row][col] === num)
+        return true;
+return false;
+        }
+
+        function isPresentInBox(boxStartRow, boxStartCol, num) {
+for (let row = 0; row < 3; row++)
+    for (let col = 0; col < 3; col++)
+        if (initialGrid[row + boxStartRow][col + boxStartCol] === num)
+return true;
+return false;
+        }
+
+        function findEmptyPlace() {
+for (let row = 0; row < 9; row++)
+    for (let col = 0; col < 9; col++)
+        if (initialGrid[row][col] === 0)
+return [row, col];
+return null;
+        }
+
+        function solveSudoku() {
+const emptyCell = findEmptyPlace();
+if (!emptyCell)
+    return true; // Puzzle solved successfully
+
+const [row, col] = emptyCell;
+
+for (let num = 1; num <= 9; num++) {
+    if (isValidPlace(row, col, num)) {
+        initialGrid[row][col] = num;
+
+        if (solveSudoku())
+return true;
+
+        initialGrid[row][col] = 0; // Undo the move
+    }
+}
+
+return false; // No solution found
+        }
+
+        function fillSolvedSudoku() {
+if (solveSudoku()) {
+    const cells = document.querySelectorAll('.sudoku-cell');
+    for (let i = 0; i < 9; i++) {
+        for (let j = 0; j < 9; j++) {
+cells[i * 9 + j].value = initialGrid[i][j];
+        }
+    }
+} else {
+    alert('No solution found for the given Sudoku puzzle!');
+}
+        }
+
+        window.onload = function() {
+createGrid();
+const solveButton = document.querySelector('button');
+solveButton.addEventListener('click', fillSolvedSudoku);
+        };
+    </script>
+    <br/><br/><br/>
+    <footer class="foot">
+        <div id="clock"></div> <!-- This div will display the time -->
+
+  <script>
+    function showTime() {
+      var d = new Date();
+      var year = d.getFullYear();
+      var month = d.getMonth() + 1; // Months are zero-based, so add 1
+      var date = d.getDate();
+      var day = d.getDay();
+      var hour = d.getHours();
+      var min = d.getMinutes();
+      var sec = d.getSeconds();
+
+      // Format the time to add leading zeros if needed
+      var formattedTime =
+        year +
+        "-" +
+        ("0" + month).slice(-2) +
+        "-" +
+        ("0" + date).slice(-2) +
+        " " +
+        ("0" + hour).slice(-2) +
+        ":" +
+        ("0" + min).slice(-2) +
+        ":" +
+        ("0" + sec).slice(-2);
+
+      // Display the formatted time in the "clock" div
+      document.getElementById("clock").textContent = formattedTime;
+    }
+
+    // Call the showTime() function every second (1000 milliseconds)
+    setInterval(showTime, 1000);
+
+    // Immediately call showTime() once to display the time immediately when the page loads
+    showTime();
+  </script>        
+        &copy resides with MR. SAAD ABDULLAH 
+    </footer>
+</body>
+</html>
