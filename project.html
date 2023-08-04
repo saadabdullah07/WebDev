@@ -7,24 +7,41 @@
     <link rel="stylesheet" href="sud.css">
 </head>
 <body>
-    <h1 class="animate">9x9 Sudoku Solver</h1>
+    <div class="text-center">
+        <h1 class="animate">9x9 Sudoku Solver</h1>
+    </div>
+
+    <div class="instructions">
+        <h2>How to Play Sudoku :-</h2>
+        <ol>
+            <li>Each row must contain the numbers 1-9 exactly once each.</li>
+            <li>Each column must contain the numbers 1-9 exactly once each.</li>
+            <li>Each 3x3 box must contain the numbers 1-9 exactly once each.</li>
+        </ol>
+        <p><strong>Do not repeat any numbers:</strong> Make sure you do not repeat numbers in rows, columns, or 3x3 boxes.</p>
+    </div>
+
     <table>
         <tbody id="sudoku-grid">
         </tbody>
     </table>
-<br/>
-<center class="instruct" >To Solve the incomplete Sudoku press the button below :</center>
-<br/>
-<button class="button-pushable" role="button" onclick="solveSudoku()">
-    <span class="button-shadow"></span>
-    <span class="button-edge"></span>
-    <span class="button-front text">
-        Solve
-    </span>
-  </button>
+
+    <br/>
+    <center class="instruct">To solve the incomplete Sudoku, press the button below:</center>
+    <br/>
+    <div class="button-container">
+        <button class="button-pushable" role="button" onclick="solveSudoku()">
+            <span class="button-shadow"></span>
+            <span class="button-edge"></span>
+            <span class="button-front text">
+                Solve
+            </span>
+        </button>
+    </div>
+    
 
     <script>
-        const initialGrid = [
+            const initialGrid = [
 [0, 0, 0, 0, 0, 0, 0, 0, 0],
 [0, 0, 0, 0, 0, 0, 0, 0, 0],
 [0, 0, 0, 0, 0, 0, 0, 0, 0],
@@ -53,17 +70,47 @@ for (let i = 0; i < 9; i++) {
     table.appendChild(row);
 }
         }
-
-        function updateCell(row, col, value) {
-const cell = document.querySelectorAll('tr')[row].querySelectorAll('td')[col];
-if (!isNaN(value) && value >= 1 && value <= 9) {
-    cell.classList.remove('error');
-    initialGrid[row][col] = parseInt(value);
-} else {
-    cell.classList.add('error');
-    initialGrid[row][col] = 0;
+function isValidPlacement(row, col, num) {
+    if (
+        isPresentInRow(row, num) ||
+        isPresentInCol(col, num) ||
+        isPresentInBox(row - row % 3, col - col % 3, num)
+    ) {
+        return false;
+    }
+    return true;
 }
-        }
+
+
+function updateCell(row, col, value) {
+    const cell = document.querySelectorAll('tr')[row].querySelectorAll('td')[col];
+    if (!isNaN(value) && value >= 1 && value <= 9 && isValidPlacement(row, col, parseInt(value))) {
+        cell.classList.remove('error');
+        initialGrid[row][col] = parseInt(value);
+    } else {
+        cell.classList.add('error');
+        initialGrid[row][col] = 0;
+        showErrorMessage('ERROR - Check the number entered');
+    }
+}
+
+function showErrorMessage(message) {
+    const errorMessageDiv = document.createElement('div');
+    errorMessageDiv.classList.add('error-popup');
+    errorMessageDiv.textContent = message;
+
+    const popupContainer = document.createElement('div');
+    popupContainer.classList.add('popup-container');
+    popupContainer.appendChild(errorMessageDiv);
+
+    document.body.appendChild(popupContainer);
+
+    setTimeout(() => {
+        document.body.removeChild(popupContainer);
+    }, 2500); // It will remove the message after 2.5 seconds
+}
+
+
 
         function isValidPlace(row, col, num){
 return !isPresentInRow(row, num) && !isPresentInCol(col, num) && !isPresentInBox(row - row % 3, col - col % 3, num);
@@ -102,7 +149,7 @@ return null;
         function solveSudoku() {
 const emptyCell = findEmptyPlace();
 if (!emptyCell)
-    return true; // Puzzle solved successfully
+    return true; // The cell is filled, and by backtracking Sudoku will be completed.
 
 const [row, col] = emptyCell;
 
@@ -113,15 +160,24 @@ for (let num = 1; num <= 9; num++) {
         if (solveSudoku())
 return true;
 
-        initialGrid[row][col] = 0; // Undo the move
+        initialGrid[row][col] = 0; //if return statement it would undo the move
     }
 }
 
-return false; // No solution found
+return false; // Since no solution is found.
         }
 
         function fillSolvedSudoku() {
-if (solveSudoku()) {
+    const cells = document.querySelectorAll('.sudoku-cell');
+    cells.forEach(cell => {
+        cell.classList.remove('error');
+        const errorMessage = cell.querySelector('.error-message');
+        if (errorMessage) {
+            cell.removeChild(errorMessage);
+        }
+    });
+
+    if (solveSudoku()) {
     const cells = document.querySelectorAll('.sudoku-cell');
     for (let i = 0; i < 9; i++) {
         for (let j = 0; j < 9; j++) {
@@ -129,32 +185,35 @@ cells[i * 9 + j].value = initialGrid[i][j];
         }
     }
 } else {
-    alert('No solution found for the given Sudoku puzzle!');
+        alert('No solution found for the given Sudoku puzzle!');
+    }
 }
-        }
+
 
         window.onload = function() {
 createGrid();
 const solveButton = document.querySelector('button');
 solveButton.addEventListener('click', fillSolvedSudoku);
         };
+    
     </script>
-    <br/><br/><br/>
-    <footer class="foot">
-        <div id="clock"></div> <!-- This div will display the time -->
 
-  <script>
+    <footer class="foot">
+        <div id="clock"></div>
+
+        <script>
+            // adding clock just for catchiness of UI.
     function showTime() {
       var d = new Date();
       var year = d.getFullYear();
-      var month = d.getMonth() + 1; // Months are zero-based, so add 1
+      var month = d.getMonth() + 1;
       var date = d.getDate();
       var day = d.getDay();
       var hour = d.getHours();
       var min = d.getMinutes();
       var sec = d.getSeconds();
 
-      // Format the time to add leading zeros if needed
+     
       var formattedTime =
         year +
         "-" +
@@ -168,17 +227,17 @@ solveButton.addEventListener('click', fillSolvedSudoku);
         ":" +
         ("0" + sec).slice(-2);
 
-      // Display the formatted time in the "clock" div
+      
       document.getElementById("clock").textContent = formattedTime;
     }
 
-    // Call the showTime() function every second (1000 milliseconds)
     setInterval(showTime, 1000);
 
-    // Immediately call showTime() once to display the time immediately when the page loads
     showTime();
-  </script>        
-        &copy resides with MR. SAAD ABDULLAH 
+  
+        </script>
+
+        &copy; Resides with MR. SAAD ABDULLAH
     </footer>
 </body>
 </html>
