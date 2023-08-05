@@ -163,7 +163,7 @@ for (let num = 1; num <= 9; num++) {
         if (solveSudoku())
 return true;
 
-        initialGrid[row][col] = 0; //if return statement it would undo the move
+        initialGrid[row][col] = 0; //if return statement does not run, it would undo the move
     }
 }
 
